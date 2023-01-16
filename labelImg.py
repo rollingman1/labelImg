@@ -1176,6 +1176,9 @@ class MainWindow(QMainWindow, WindowMixin):
             blurred_pixmap = QPixmap.fromImage(blur_img)
             painter.end()
 
+            # initialize blur_button
+            self.blur_button.setChecked(True)
+
             self.file_path = unicode_file_path
             self.canvas.set_blurred_pixmap(blurred_pixmap)
             self.canvas.set_original_pixmap(original_pixmap)
