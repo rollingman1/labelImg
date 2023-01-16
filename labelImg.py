@@ -143,9 +143,15 @@ class MainWindow(QMainWindow, WindowMixin):
         self.edit_button = QToolButton()
         self.edit_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
+        # Create a widget for blur button
+        self.blur_button = QCheckBox('blur')
+        self.blur_button.setChecked(True)
+        self.blur_button.stateChanged.connect(self.toggle_blur)
+
         # Add some of widgets to list_layout
         list_layout.addWidget(self.edit_button)
         list_layout.addWidget(self.diffc_button)
+        list_layout.addWidget(self.blur_button)
         list_layout.addWidget(use_default_label_container)
 
         # Create and add combobox for showing unique labels in group
@@ -1147,8 +1153,33 @@ class MainWindow(QMainWindow, WindowMixin):
                 return False
             self.status("Loaded %s" % os.path.basename(unicode_file_path))
             self.image = image
+            # creating a blur effect
+            blur_effect = QGraphicsBlurEffect()
+
+            # setting blur radius
+            blur_effect.setBlurRadius(20)
+
+            # load pixmap
+            original_pixmap = QPixmap.fromImage(image)
+
+            # apply blur effect
+            graphicspixmapitem = QGraphicsPixmapItem()
+            graphicspixmapitem.setPixmap(original_pixmap)
+            graphicspixmapitem.setGraphicsEffect(blur_effect)
+
+            # capture blurred item to pixmap
+            scene = QGraphicsScene()
+            scene.addItem(graphicspixmapitem)
+            blur_img = QImage(image.size(), QImage.Format_ARGB32)
+            painter = QPainter(blur_img)
+            scene.render(painter, QRectF(), QRectF(0, 0, image.width(), image.height()))
+            blurred_pixmap = QPixmap.fromImage(blur_img)
+            painter.end()
+
             self.file_path = unicode_file_path
-            self.canvas.load_pixmap(QPixmap.fromImage(image))
+            self.canvas.set_blurred_pixmap(blurred_pixmap)
+            self.canvas.set_original_pixmap(original_pixmap)
+            self.canvas.load_pixmap(blurred_pixmap)
             if self.label_file:
                 self.load_labels(self.label_file.shapes)
             self.set_clean()
@@ -1605,6 +1636,13 @@ class MainWindow(QMainWindow, WindowMixin):
     def move_shape(self):
         self.canvas.end_move(copy=False)
         self.set_dirty()
+
+    def toggle_blur(self):
+        if self.canvas.pixmap == self.canvas.blurred_pixmap:
+            self.canvas.set_pixmap(blur=False)
+        else:
+            self.canvas.set_pixmap(blur=True)
+        self.canvas.update()
 
     def load_predefined_classes(self, predef_classes_file):
         if os.path.exists(predef_classes_file) is True:

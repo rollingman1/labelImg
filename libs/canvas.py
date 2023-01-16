@@ -51,6 +51,8 @@ class Canvas(QWidget):
         self.overlay_color = None
         self.label_font_size = 8
         self.pixmap = QPixmap()
+        self.blurred_pixmap = QPixmap()
+        self.original_pixmap = QPixmap()
         self.visible = {}
         self._hide_background = False
         self.hide_background = False
@@ -68,6 +70,12 @@ class Canvas(QWidget):
 
         # initialisation for panning
         self.pan_initial_pos = QPoint()
+
+    def set_pixmap(self, blur=True):
+        if blur:
+            self.pixmap = self.blurred_pixmap
+        else:
+            self.pixmap = self.original_pixmap
 
     def set_drawing_color(self, qcolor):
         self.drawing_line_color = qcolor
@@ -704,6 +712,12 @@ class Canvas(QWidget):
         self.current = None
         self.drawingPolygon.emit(False)
         self.update()
+
+    def set_blurred_pixmap(self, pixmap):
+        self.blurred_pixmap = pixmap
+
+    def set_original_pixmap(self, pixmap):
+        self.original_pixmap = pixmap
 
     def load_pixmap(self, pixmap):
         self.pixmap = pixmap
