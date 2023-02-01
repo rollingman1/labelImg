@@ -1157,7 +1157,7 @@ class MainWindow(QMainWindow, WindowMixin):
             blur_effect = QGraphicsBlurEffect()
 
             # setting blur radius
-            blur_effect.setBlurRadius(20)
+            blur_effect.setBlurRadius(5)
 
             # load pixmap
             original_pixmap = QPixmap.fromImage(image)
@@ -1212,6 +1212,7 @@ class MainWindow(QMainWindow, WindowMixin):
         return '[{} / {}]'.format(self.cur_img_idx + 1, self.img_count)
 
     def show_bounding_box_from_annotation_file(self, file_path):
+        print(file_path)
         if self.default_save_dir is not None:
             basename = os.path.basename(os.path.splitext(file_path)[0])
             xml_path = os.path.join(self.default_save_dir, basename + XML_EXT)
@@ -1303,7 +1304,6 @@ class MainWindow(QMainWindow, WindowMixin):
         else:
             settings[SETTING_LAST_OPEN_DIR] = ''
 
-        settings[SETTING_AUTO_SAVE] = self.auto_saving.isChecked()
         settings[SETTING_SINGLE_CLASS] = self.single_class_mode.isChecked()
         settings[SETTING_PAINT_LABEL] = self.display_label_option.isChecked()
         settings[SETTING_DRAW_SQUARE] = self.draw_squares_option.isChecked()
@@ -1389,6 +1389,7 @@ class MainWindow(QMainWindow, WindowMixin):
                                                                     QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks))
         else:
             target_dir_path = ustr(default_open_dir_path)
+        print('target_dir_path', target_dir_path)
         self.last_open_dir = target_dir_path
         self.import_dir_images(target_dir_path)
         self.default_save_dir = os.path.join(target_dir_path, 'annotation')
